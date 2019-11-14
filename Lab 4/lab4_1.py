@@ -27,7 +27,7 @@ def hess_lag_gen(H):
     return hess_lag_update
 
 
-def step(z, rh, hess_lag, rh_update, hess_lag_update, alpha=1, epsilon=1e-10):
+def step(z, rh, hess_lag, rh_update, hess_lag_update, n, alpha=1, epsilon=1e-10):
     dz = np.linalg.solve(hess_lag, rh)
     # print(matrix,rh)
     z = z + alpha * dz
@@ -46,7 +46,7 @@ def loop(z, n):
     rh = rh_update(z, n)
     hess_lag = hess_lag_update(z, n)
     while eps_condition and i_loop < niter:
-        eps_condition, z, rh, hess_lag = step(z, rh, hess_lag, rh_update, hess_lag_update)
+        eps_condition, z, rh, hess_lag = step(z, rh, hess_lag, rh_update, hess_lag_update, n)
         i_loop += 1
     return z
 
