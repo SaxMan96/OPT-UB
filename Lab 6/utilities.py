@@ -70,7 +70,7 @@ def  step_size(z, matrix, rhv, solver, strategy, G, A, C, g, b, d, n, m, p):
     return True, z, matrix, rhv
 
 #optimization solver
-def optimization(n, problem, strategy, solver, cond_nb=False):
+def optimization(n, problem, strategy, solver, cond_nb=False, niter=25):
     #initialize dimensions, matrices and vectors
     z, G, A, C, g, b, d, n, m, p = problem(n)
     #choose strategy functions
@@ -78,11 +78,11 @@ def optimization(n, problem, strategy, solver, cond_nb=False):
     matrix = matrix_update(z, G, A, C, n, m, p)
     rhv = rhv_update(z, G, A, C, g, b, d, n, m, p)
     #loop variables
-    niter = 25
     loop = True
     iloop=0
     time_list = []
     if cond_nb == True : cond_list = []
+    history = []
     while loop and iloop<niter:
         t0 = time.clock()
         loop, z, matrix, rhv = step_size(z, matrix, rhv, solver, strategy, G, A, C, g, b, d, n, m, p)
@@ -91,13 +91,12 @@ def optimization(n, problem, strategy, solver, cond_nb=False):
         iloop = iloop+1
         if cond_nb == True:
             cond_list.append(np.linalg.cond(matrix))
+        history.append(f(z, G, g, n))
 
-    #print('n:{} iters:{} z+g:{}'.format(n,iloop,np.linalg.norm(z[:n]+g)))
     eq, ineq = constraint(z, A, C, b, d, n)
-    print('i={} f = {} eq:{} ineq:{} x_norm:{} loop:{}'.format(iloop,f(z, G, g, n), eq, ineq, np.linalg.norm(z[:n]),loop))
     t_total = sum(time_list)
     if cond_nb == True: return  t_total, iloop, np.array(cond_list)
-    else: return t_total, iloop
+    else: return t_total, iloop, history
 
 
 
